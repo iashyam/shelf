@@ -195,6 +195,11 @@ type Book struct {
 	Status    BookStatus    `bson:"status" json:"status"`
 	Pages     int           `bson:"pages" json:"pages"`
 	Genre     Genre         `bson:"genre" json:"genre"`
+
+	// Set when the book was added through external search.
+	ExternalID string `bson:"externalId,omitempty" json:"externalId,omitempty"`
+	CoverURL   string `bson:"coverUrl,omitempty" json:"coverUrl,omitempty"`
+	Year       int    `bson:"year,omitempty" json:"year,omitempty"`
 }
 
 type Movie struct {

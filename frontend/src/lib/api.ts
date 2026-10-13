@@ -1,5 +1,6 @@
 import { API_BASE_URL } from './constants';
 import { getToken } from './auth';
+import { BookSearchResult } from '@/types/models';
 
 export class ApiError extends Error {
   constructor(
@@ -65,6 +66,13 @@ export async function logout(): Promise<void> {
   await apiFetch('/admin/logout', {
     method: 'POST',
     auth: true,
+  });
+}
+
+export async function searchBooks(q: string, signal?: AbortSignal): Promise<BookSearchResult[]> {
+  return apiFetch<BookSearchResult[]>(`/search/books?q=${encodeURIComponent(q)}`, {
+    auth: true,
+    signal,
   });
 }
 
