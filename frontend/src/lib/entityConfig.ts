@@ -28,6 +28,8 @@ export interface EntityConfig<T> {
   formFields: FormField[];
   /** Status new items are created with — everything starts on the backlog. */
   defaultCreateStatus: string;
+  /** Show the external-database search box when adding a new item. */
+  searchable?: boolean;
   sortOptions: Array<{ value: string; label: string }>;
 }
 
@@ -168,6 +170,7 @@ export const bookConfig: EntityConfig<Book> = {
     { name: 'endDate', label: 'End Date', type: 'date' },
   ],
   defaultCreateStatus: 'toRead',
+  searchable: true,
   sortOptions: [
     { value: 'recent', label: 'Recently updated' },
     { value: 'titleAsc', label: 'Title (A–Z)' },

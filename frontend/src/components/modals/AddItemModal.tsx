@@ -5,6 +5,8 @@ import { X } from 'lucide-react';
 import { EntityConfig } from '@/lib/entityConfig';
 import { useCreateEntity, useUpdateEntity } from '@/lib/queries';
 import { ApiError } from '@/lib/api';
+import { Book, BookSearchResult } from '@/types/models';
+import { BookSearchBox } from './BookSearchBox';
 
 interface AddItemModalProps<T> {
   isOpen: boolean;
@@ -23,6 +25,8 @@ export function AddItemModal<T extends { id?: string }>({
 }: AddItemModalProps<T>) {
   const [formData, setFormData] = useState<Record<string, string | number>>({});
   const [error, setError] = useState('');
+  // Metadata from an external search pick; sent on create but not editable in the form
+  const [externalMeta, setExternalMeta] = useState<Partial<Pick<Book, 'externalId' | 'coverUrl' | 'year'>>>({});
   const createMutation = useCreateEntity(resource);
   const updateMutation = useUpdateEntity(resource);
 
@@ -49,8 +53,25 @@ export function AddItemModal<T extends { id?: string }>({
       } else {
         setFormData({});
       }
+      setExternalMeta({});
     }
   }, [editItem, isOpen, config.formFields]);
+
+  const handleBookSelect = (result: BookSearchResult) => {
+    setFormData((prev) => ({
+      ...prev,
+      title: result.title,
+      author: result.author,
+      genre: result.genre,
+      // Leave pages for the user to type when Open Library has no page count
+      ...(result.pages > 0 ? { pages: result.pages } : {}),
+    }));
+    setExternalMeta({
+      externalId: result.externalId,
+      coverUrl: result.coverUrl || undefined,
+      year: result.year || undefined,
+    });
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -111,6 +132,9 @@ export function AddItemModal<T extends { id?: string }>({
         await updateMutation.mutateAsync({ id: editItem.id, data: payload });
       } else {
         payload.status = config.defaultCreateStatus;
+        Object.entries(externalMeta).forEach(([key, value]) => {
+          if (value !== undefined) payload[key] = value;
+        });
         await createMutation.mutateAsync(payload);
       }
 
@@ -154,6 +178,8 @@ export function AddItemModal<T extends { id?: string }>({
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
+          {config.searchable && !editItem && <BookSearchBox onSelect={handleBookSelect} />}
+
           {visibleFields.map((field) => (
             <div key={field.name}>
               <label className="block text-sm font-medium text-foreground/80 mb-1.5">

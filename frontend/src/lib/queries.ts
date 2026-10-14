@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createEntityApi, login as apiLogin, logout as apiLogout } from './api';
+import { createEntityApi, login as apiLogin, logout as apiLogout, searchBooks } from './api';
 import { Movie, Book, Show } from '@/types/models';
 
 type Resource = 'movies' | 'books' | 'shows';
@@ -13,6 +13,17 @@ const apis: Record<Resource, ReturnType<typeof createEntityApi>> = {
   books: bookApi,
   shows: showApi,
 };
+
+/** Search-as-you-type against the book search endpoint. Pass an already-debounced query. */
+export function useBookSearch(query: string) {
+  const trimmed = query.trim();
+  return useQuery({
+    queryKey: ['search', 'books', trimmed],
+    queryFn: ({ signal }) => searchBooks(trimmed, signal),
+    enabled: trimmed.length >= 2,
+    staleTime: 5 * 60 * 1000,
+  });
+}
 
 export function useEntityList(resource: Resource) {
   return useQuery({

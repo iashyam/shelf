@@ -59,6 +59,8 @@ func setupRouter() *gin.Engine {
 	r.PATCH("/books/:id", AuthMiddleware(), bookHandler.Update())
 	r.PATCH("/books/:id/status", AuthMiddleware(), bookHandler.ChangeStatus())
 
+	r.GET("/search/books", AuthMiddleware(), SearchBooksHandler(NewBookSearcher()))
+
 	// movies handlers
 	movieHandler := NewContent[Movie](env, "movies")
 	r.GET("/movies", movieHandler.GetAll())

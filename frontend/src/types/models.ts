@@ -24,6 +24,19 @@ export interface Book {
   pages: number;
   genre: Genre;
   status: BookStatus;
+  externalId?: string;
+  coverUrl?: string;
+  year?: number;
+}
+
+export interface BookSearchResult {
+  externalId: string;
+  title: string;
+  author: string;
+  pages: number;
+  year: number;
+  genre: Genre;
+  coverUrl: string;
 }
 
 export interface Show {
